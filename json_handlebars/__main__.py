@@ -1,40 +1,45 @@
 # coding=utf-8
 import json
+import os
 import re
-from pprint import pprint
 
-with open('test.json') as f:
-    config = json.load(f)
+import click
 
 op = re.compile('{{([a-z]+)}}', re.IGNORECASE)
 lp = re.compile('{{([a-z]+)\\.([a-z]+)}}', re.IGNORECASE)
 
 
 def parse_list(_list, root):
-
     # multiply children with placeholders
+    template_items = []
+
     for item in _list:
         if not isinstance(item, dict):
             continue
 
         for item_key in item:
-            if not isinstance(item[item_key], unicode):
+            if not isinstance(item[item_key], basestring):
                 continue
 
             m = lp.match(item[item_key])
             if not m:
                 continue
 
-            root_key_singular = m.group(1)
-            root_key_plural = root_key_singular + 's'
+            template_items.append(item)
 
-            if not root.get(root_key_plural) or not isinstance(root[root_key_plural], list):
+            root_key_singular = m.group(1)
+            root_key = root_key_singular + 's'
+
+            if not root.get(root_key) or not isinstance(root[root_key], list):
                 continue
 
-            for root_item in root[root_key_plural]:
+            for root_item in root[root_key]:
                 copy = item.copy()
 
                 for copy_key in copy:
+                    if not isinstance(copy[copy_key], basestring):
+                        continue
+
                     m = lp.match(copy[copy_key])
                     if not m:
                         continue
@@ -47,20 +52,20 @@ def parse_list(_list, root):
                     copy[copy_key] = root_item[root_item_key]
 
                 _list.append(copy)
-
-            _list.remove(item)
             break
 
+    for item in template_items:
+        _list.remove(item)
+
     # parse children
-    for child in _list:
-        parse(child, root)
+    for item in _list:
+        parse(item, root)
 
 
 def parse_object(_object, root):
-
     # replace placeholders
     for key in _object:
-        if not isinstance(_object[key], unicode):
+        if not isinstance(_object[key], basestring):
             continue
 
         m = op.match(_object[key])
@@ -90,10 +95,27 @@ def parse(item, root=None):
         parse_object(item, root)
 
 
-if isinstance(config, dict):
-    config = [config]
+@click.command()
+@click.argument('path', type=click.Path(exists=True))
+def cli(path):
+    dirname = os.path.dirname(path)
+    filename, ext = os.path.splitext(path)
+    output_path = os.path.join(dirname, filename + '_output' + ext)
 
-for org_config in config:
-    parse(org_config)
+    with open(path) as f:
+        config = json.load(f)
 
-pprint(config)
+    if isinstance(config, dict):
+        config = [config]
+
+    for org_config in config:
+        parse(org_config)
+
+    with open(output_path, 'wb+') as f:
+        json.dump(config, f, indent=4, sort_keys=True)
+
+    click.echo('output: ' + output_path)
+
+
+if __name__ == '__main__':
+    cli()
