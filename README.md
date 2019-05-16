@@ -10,7 +10,7 @@ To run jars, run the following:
 # input 
 {"source": "test", "target": "{{source}}"}
 
-# results in 
+# output
 {"source": "test", "target": "test"}
 ```
 
@@ -19,6 +19,6 @@ To run jars, run the following:
 # input
 {"sources": [{"name": "Joshua"}, {"name":  "Peter"}], "targets":  [{"owner": "{{source.name}}" }]}
 
-# results in 
+# output
 {"sources": [{"name": "Joshua"}, {"name":  "Peter"}], "targets":  [{"owner": "Joshua" }, {"owner": "Peter" }]}
 ```
