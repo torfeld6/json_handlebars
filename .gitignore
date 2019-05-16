@@ -3,3 +3,5 @@
 env
 jars.egg-info
 *.pyc
+dist
+build
