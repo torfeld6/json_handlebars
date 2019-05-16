@@ -17,8 +17,8 @@ To run jars, run the following:
 ## Multipliers 
 ```json
 # input
-{"sources": [{"name": "Joshua"}, {"name":  "Peter"}], "items":  [{"owner": "{{source.name}}" }]}
+{"sources": [{"name": "Joshua"}, {"name":  "Peter"}], "targets":  [{"owner": "{{source.name}}" }]}
 
 # results in 
-{"sources": [{"name": "Joshua"}, {"name":  "Peter"}], "items":  [{"owner": "Joshua" }, {"owner": "Peter" }]}
+{"sources": [{"name": "Joshua"}, {"name":  "Peter"}], "targets":  [{"owner": "Joshua" }, {"owner": "Peter" }]}
 ```
