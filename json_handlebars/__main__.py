@@ -1,4 +1,5 @@
 # coding=utf-8
+import collections
 import json
 import os
 import re
@@ -103,7 +104,7 @@ def cli(path):
     output_path = os.path.join(dirname, filename + '_output' + ext)
 
     with open(path) as f:
-        config = json.load(f)
+        config = json.load(f, object_pairs_hook=collections.OrderedDict)
 
     if isinstance(config, dict):
         config = [config]
@@ -112,7 +113,7 @@ def cli(path):
         parse(org_config)
 
     with open(output_path, 'wb+') as f:
-        json.dump(config, f, indent=4, sort_keys=True)
+        json.dump(config, f, indent=4)
 
     click.echo('output: ' + output_path)
 
